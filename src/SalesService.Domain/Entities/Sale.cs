@@ -19,6 +19,9 @@ public class Sale
 
     public List<SaleItem> Items { get; private set; } = new();
 
+    // Parameterless constructor for EF Core
+    private Sale() { }
+
     public Sale(
         string saleNumber,
         DateTime date,

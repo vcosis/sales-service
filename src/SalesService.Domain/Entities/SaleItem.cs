@@ -10,6 +10,9 @@ public class SaleItem
     public decimal Discount { get; private set; }
     public decimal Total { get; private set; }
 
+    // Parameterless constructor for EF Core
+    private SaleItem() { }
+
     public SaleItem(
         int productId,
         string productName,
