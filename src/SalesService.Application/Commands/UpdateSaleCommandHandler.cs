@@ -23,18 +23,16 @@ public class UpdateSaleCommandHandler : IRequestHandler<UpdateSaleCommand, SaleD
         if (sale == null)
             throw new KeyNotFoundException($"Sale with id {request.Id} not found.");
 
-        // Update sale properties
-        // (Business rules for updating items can be added here)
-        // For simplicity, replace all items
-        sale = new Sale(
+        sale.UpdateSale(
             request.SaleNumber,
             request.Date,
             request.CustomerId,
             request.CustomerName,
             request.BranchId,
-            request.BranchName,
-            new List<SaleItem>()
+            request.BranchName
         );
+
+        sale.ClearItems();
         foreach (var item in request.Items)
         {
             sale.AddItem(item.ProductId, item.ProductName, item.Quantity, item.UnitPrice);

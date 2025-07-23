@@ -83,6 +83,34 @@ public class Sale
     }
 
     /// <summary>
+    /// Updates the sale properties.
+    /// </summary>
+    public void UpdateSale(
+        string saleNumber,
+        DateTime date,
+        int customerId,
+        string customerName,
+        int branchId,
+        string branchName)
+    {
+        SaleNumber = saleNumber;
+        Date = date;
+        CustomerId = customerId;
+        CustomerName = customerName;
+        BranchId = branchId;
+        BranchName = branchName;
+    }
+
+    /// <summary>
+    /// Clears all items from the sale.
+    /// </summary>
+    public void ClearItems()
+    {
+        Items.Clear();
+        TotalAmount = 0;
+    }
+
+    /// <summary>
     /// Cancels the sale.
     /// </summary>
     public void Cancel()
