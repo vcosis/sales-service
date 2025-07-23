@@ -59,27 +59,10 @@ public class Sale
         if (quantity > 20)
             throw new InvalidOperationException($"Não é possível adicionar mais de 20 unidades do produto '{productName}' em uma única venda. Quantidade solicitada: {quantity}.");
 
-        decimal discount = CalculateDiscount(quantity, unitPrice);
-
-        var item = new SaleItem(productId, productName, quantity, unitPrice, discount);
+        var item = new SaleItem(productId, productName, quantity, unitPrice);
         Items.Add(item);
 
         TotalAmount = Items.Sum(i => i.Total);
-    }
-
-    /// <summary>
-    /// Calculates the discount based on quantity according to business rules.
-    /// </summary>
-    /// <param name="quantity">Quantity of the product</param>
-    /// <param name="unitPrice">Unit price of the product</param>
-    /// <returns>Discount value</returns>
-    private decimal CalculateDiscount(int quantity, decimal unitPrice)
-    {
-        if (quantity >= 10 && quantity <= 20)
-            return unitPrice * quantity * 0.20m; // 20% discount
-        if (quantity >= 4)
-            return unitPrice * quantity * 0.10m; // 10% discount
-        return 0m; // No discount for less than 4
     }
 
     /// <summary>
@@ -116,5 +99,39 @@ public class Sale
     public void Cancel()
     {
         Cancelled = true;
+    }
+
+
+
+    /// <summary>
+    /// Updates an existing item in the sale.
+    /// </summary>
+    public void UpdateItem(int itemId, int productId, string productName, int quantity, decimal unitPrice)
+    {
+        var item = Items.FirstOrDefault(i => i.Id == itemId);
+        if (item == null)
+            throw new KeyNotFoundException($"Item with id {itemId} not found in sale.");
+
+        if (quantity < 1)
+            throw new ArgumentException("A quantidade deve ser pelo menos 1 unidade.");
+
+        if (quantity > 20)
+            throw new InvalidOperationException($"Não é possível adicionar mais de 20 unidades do produto '{productName}' em uma única venda. Quantidade solicitada: {quantity}.");
+
+        item.UpdateItem(productId, productName, quantity, unitPrice);
+        TotalAmount = Items.Sum(i => i.Total);
+    }
+
+    /// <summary>
+    /// Removes an item from the sale by its ID.
+    /// </summary>
+    public void RemoveItem(int itemId)
+    {
+        var item = Items.FirstOrDefault(i => i.Id == itemId);
+        if (item != null)
+        {
+            Items.Remove(item);
+            TotalAmount = Items.Sum(i => i.Total);
+        }
     }
 } 
