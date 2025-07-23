@@ -4,6 +4,35 @@
 
 SalesService is a modular .NET 8 solution designed with Project Layer Separation, following Clean Architecture principles. The project is structured to ensure clear separation of concerns, maintainability, and scalability.
 
+## Quick Start with Docker
+
+### Prerequisites
+- Docker Desktop installed and running
+
+### Run the application
+```bash
+# Build and start all services (PostgreSQL + API)
+docker-compose up --build -d
+
+# Check if services are running
+docker-compose ps
+
+# View logs
+docker-compose logs -f
+```
+
+### Access the application
+- **API:** http://localhost:5000
+- **Swagger UI:** http://localhost:5000/swagger
+- **Database:** localhost:5432 (postgres/S@le5#01!)
+
+### Stop the application
+```bash
+docker-compose down
+```
+
+For detailed Docker instructions, see [DOCKER_README.md](DOCKER_README.md).
+
 ## Solution Structure
 
 ```
@@ -29,6 +58,14 @@ src/
 - .NET 8.0 (C#)
 - MediatR, AutoMapper, EF Core
 - PostgreSQL
+
+## Database Migrations
+
+To generate the initial database migrations (without applying them), run:
+
+```
+dotnet ef migrations add InitialCreate --project src/SalesService.Infrastructure --startup-project src/SalesService.Api
+```
 
 ## Documentation
 See the `docs/Teste .NET` folder for business rules, API contracts, and further requirements.

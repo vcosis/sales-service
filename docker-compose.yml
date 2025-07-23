@@ -1,0 +1,65 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: sales-postgres
+    environment:
+      POSTGRES_DB: salesdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: S@le5#01!
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/app/scripts/init.sql
+    networks:
+      - sales-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d salesdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "com.docker.desktop.extension.detailed-description=PostgreSQL database for Sales Service"
+      - "com.docker.desktop.extension.category=database"
+      - "com.docker.desktop.extension.icon=🐘"
+
+  # Sales Service API
+  sales-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+      cache_from:
+        - sales-service-sales-api:latest
+    container_name: sales-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=salesdb;Username=postgres;Password=S@le5#01!
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=S@le5#01!
+      - POSTGRES_DB=salesdb
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sales-network
+    volumes:
+      - ./src:/app/src
+    labels:
+      - "com.docker.desktop.extension.detailed-description=Sales Service API with Swagger UI"
+      - "com.docker.desktop.extension.category=api"
+      - "com.docker.desktop.extension.icon=🛒"
+      - "com.docker.desktop.extension.open-url=http://localhost:5000/swagger"
+      - "com.docker.desktop.extension.api-schema=http://localhost:5000/swagger/v1/swagger.json"
+
+volumes:
+  postgres_data:
+
+networks:
+  sales-network:
+    driver: bridge 

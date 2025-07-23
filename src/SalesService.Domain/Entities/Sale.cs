@@ -54,10 +54,10 @@ public class Sale
     public void AddItem(int productId, string productName, int quantity, decimal unitPrice)
     {
         if (quantity < 1)
-            throw new ArgumentException("Quantity must be at least 1.");
+            throw new ArgumentException("A quantidade deve ser pelo menos 1 unidade.");
 
         if (quantity > 20)
-            throw new InvalidOperationException("Cannot sell more than 20 identical items.");
+            throw new InvalidOperationException($"Não é possível adicionar mais de 20 unidades do produto '{productName}' em uma única venda. Quantidade solicitada: {quantity}.");
 
         decimal discount = CalculateDiscount(quantity, unitPrice);
 
