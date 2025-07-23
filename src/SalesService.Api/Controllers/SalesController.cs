@@ -20,6 +20,23 @@ public class SalesController : ControllerBase
     /// <summary>
     /// Get all sales with pagination, filtering, and ordering
     /// </summary>
+    /// <param name="page">Page number (default: 1)</param>
+    /// <param name="size">Number of items per page (default: 10)</param>
+    /// <param name="order">Ordering criteria (e.g., "date desc", "customername asc")</param>
+    /// <param name="filter">Filter criteria (e.g., "cancelled=true", "customername=John*")</param>
+    /// <remarks>
+    /// Filter examples:
+    /// - cancelled=true (show only cancelled sales)
+    /// - cancelled=false (show only active sales)
+    /// - customername=John* (sales with customer name starting with "John")
+    /// - salenumber=SALE* (sales with number starting with "SALE")
+    /// - totalamount=1500 (sales with exact total amount)
+    /// - totalamount>1000 (sales with total amount greater than 1000)
+    /// - totalamount&lt;5000 (sales with total amount less than 5000)
+    /// - totalamount=1000-5000 (sales with total amount between 1000 and 5000)
+    /// - Multiple filters: cancelled=true&amp;totalamount>1000
+    /// - Multiple filters: cancelled=false&amp;customername=John*&amp;totalamount&lt;2000
+    /// </remarks>
     [HttpGet]
     public async Task<ActionResult<List<SaleDto>>> GetSales(
         [FromQuery] int page = 1,
