@@ -1,3 +1,5 @@
+using SalesService.Domain.Events;
+
 namespace SalesService.Domain.Entities;
 
 public class Sale
@@ -19,8 +21,28 @@ public class Sale
 
     public List<SaleItem> Items { get; private set; } = new();
 
+    // Domain Events
+    private readonly List<ISaleEvent> _domainEvents = new();
+    public IReadOnlyCollection<ISaleEvent> DomainEvents => _domainEvents.AsReadOnly();
+
     // Parameterless constructor for EF Core
     private Sale() { }
+
+    /// <summary>
+    /// Adds a domain event to the internal collection
+    /// </summary>
+    private void AddDomainEvent(ISaleEvent domainEvent)
+    {
+        _domainEvents.Add(domainEvent);
+    }
+
+    /// <summary>
+    /// Clears all domain events after they have been published
+    /// </summary>
+    public void ClearDomainEvents()
+    {
+        _domainEvents.Clear();
+    }
 
     public Sale(
         string saleNumber,
@@ -40,6 +62,9 @@ public class Sale
         Items = items ?? new List<SaleItem>();
         TotalAmount = Items.Sum(i => i.Total);
         Cancelled = false;
+
+        // Add creation event
+        AddDomainEvent(new SaleCreatedEvent(this));
     }
 
     /// <summary>
@@ -63,6 +88,9 @@ public class Sale
         Items.Add(item);
 
         TotalAmount = Items.Sum(i => i.Total);
+
+        // Add modification event
+        AddDomainEvent(new SaleModifiedEvent(this, "Item added"));
     }
 
     /// <summary>
@@ -82,6 +110,9 @@ public class Sale
         CustomerName = customerName;
         BranchId = branchId;
         BranchName = branchName;
+
+        // Add modification event
+        AddDomainEvent(new SaleModifiedEvent(this, "Sale properties updated"));
     }
 
     /// <summary>
@@ -89,8 +120,20 @@ public class Sale
     /// </summary>
     public void ClearItems()
     {
+        if (Items.Any())
+        {
+            // Add events for each item being removed
+            foreach (var item in Items.ToList())
+            {
+                AddDomainEvent(new ItemCancelledEvent(this, item, "Item cleared"));
+            }
+        }
+
         Items.Clear();
         TotalAmount = 0;
+
+        // Add modification event
+        AddDomainEvent(new SaleModifiedEvent(this, "All items cleared"));
     }
 
     /// <summary>
@@ -98,7 +141,13 @@ public class Sale
     /// </summary>
     public void Cancel()
     {
+        if (Cancelled)
+            throw new InvalidOperationException("Sale is already cancelled.");
+            
         Cancelled = true;
+
+        // Add cancellation event
+        AddDomainEvent(new SaleCancelledEvent(this));
     }
 
 
@@ -120,6 +169,9 @@ public class Sale
 
         item.UpdateItem(productId, productName, quantity, unitPrice);
         TotalAmount = Items.Sum(i => i.Total);
+
+        // Add modification event
+        AddDomainEvent(new SaleModifiedEvent(this, "Item updated"));
     }
 
     /// <summary>
@@ -132,6 +184,9 @@ public class Sale
         {
             Items.Remove(item);
             TotalAmount = Items.Sum(i => i.Total);
+
+            // Add item cancelled event
+            AddDomainEvent(new ItemCancelledEvent(this, item, "Item removed"));
         }
     }
 } 

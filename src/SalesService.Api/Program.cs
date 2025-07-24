@@ -1,7 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using SalesService.Infrastructure.Persistence;
 using SalesService.Application.Interfaces;
+using SalesService.Infrastructure.Events;
 using SalesService.Api.Middleware;
+using Rebus.Config;
+using Rebus.Activation;
+using Rebus.Transport.InMem;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +21,9 @@ builder.Services.AddDbContext<SalesDbContext>(options =>
 // Add Repositories
 builder.Services.AddScoped<ISaleRepository, SaleRepository>();
 
+// Add Event Publisher (using Rebus In-Memory implementation)
+builder.Services.AddScoped<IEventPublisher, RebusEventPublisher>();
+
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(SalesService.Application.Profiles.SaleProfile).Assembly);
 
@@ -24,6 +31,14 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(SalesService.App
 builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssembly(typeof(SalesService.Application.Commands.CreateSaleCommand).Assembly);
 });
+
+// Configure Rebus with In-Memory transport
+var rebusConfig = Configure.With(new BuiltinHandlerActivator())
+    .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "sales-service"))
+    .Logging(l => l.Console())
+    .Start();
+
+builder.Services.AddSingleton(rebusConfig);
 
 var app = builder.Build();
 

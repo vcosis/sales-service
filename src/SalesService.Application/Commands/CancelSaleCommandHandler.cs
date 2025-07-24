@@ -1,6 +1,7 @@
 using MediatR;
 using SalesService.Application.DTOs;
 using SalesService.Application.Interfaces;
+using SalesService.Domain.Events;
 using AutoMapper;
 
 namespace SalesService.Application.Commands;
@@ -9,11 +10,13 @@ public class CancelSaleCommandHandler : IRequestHandler<CancelSaleCommand, SaleD
 {
     private readonly ISaleRepository _repository;
     private readonly IMapper _mapper;
+    private readonly IEventPublisher _eventPublisher;
 
-    public CancelSaleCommandHandler(ISaleRepository repository, IMapper mapper)
+    public CancelSaleCommandHandler(ISaleRepository repository, IMapper mapper, IEventPublisher eventPublisher)
     {
         _repository = repository;
         _mapper = mapper;
+        _eventPublisher = eventPublisher;
     }
 
     public async Task<SaleDto> Handle(CancelSaleCommand request, CancellationToken cancellationToken)
@@ -24,6 +27,16 @@ public class CancelSaleCommandHandler : IRequestHandler<CancelSaleCommand, SaleD
 
         sale.Cancel();
         await _repository.UpdateAsync(sale, cancellationToken);
+        
+        // Publish domain events
+        foreach (var domainEvent in sale.DomainEvents)
+        {
+            await _eventPublisher.PublishAsync(domainEvent, cancellationToken);
+        }
+        
+        // Clear events after publishing
+        sale.ClearDomainEvents();
+        
         return _mapper.Map<SaleDto>(sale);
     }
 } 
