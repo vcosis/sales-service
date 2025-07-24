@@ -67,5 +67,69 @@ To generate the initial database migrations (without applying them), run:
 dotnet ef migrations add InitialCreate --project src/SalesService.Infrastructure --startup-project src/SalesService.Api
 ```
 
+## Testing
+
+### Running Tests
+
+The project includes comprehensive unit tests using xUnit, NSubstitute for mocking, and FluentAssertions for assertions.
+
+#### Run all tests
+```bash
+dotnet test
+```
+
+#### Run tests with detailed output
+```bash
+dotnet test --verbosity normal
+```
+
+#### Run tests without building (faster for subsequent runs)
+```bash
+dotnet test --no-build
+```
+
+#### Run specific test project
+```bash
+dotnet test tests/SalesService.Tests.csproj
+```
+
+#### Run tests with coverage (requires coverlet.collector)
+```bash
+dotnet test --collect:"XPlat Code Coverage"
+```
+
+### Test Structure
+
+```
+tests/
+  SalesService.Tests.csproj          # Test project configuration
+  GlobalUsings.cs                    # Global using directives
+  Domain/
+    Entities/
+      SaleTests.cs                   # Domain entity tests (39 tests)
+      SaleItemTests.cs               # Sale item business rules tests
+  Application/
+    Queries/
+      GetSalesQueryHandlerTests.cs   # Query handler tests (1 test)
+```
+
+### Test Coverage
+
+The test suite covers:
+
+- **Domain Layer (39 tests)**: Business rules, entity validation, and domain logic
+  - Sale entity: creation, update, cancellation, item management
+  - SaleItem entity: discount calculations, quantity validations
+- **Application Layer (1 test)**: Query handlers with filtering, ordering, and pagination
+
+**Total: 40 tests** - All passing ✅
+
+### Test Frameworks
+
+- **xUnit**: Testing framework
+- **NSubstitute**: Mocking framework
+- **FluentAssertions**: Fluent assertion syntax
+- **Bogus**: Fake data generation
+
 ## Documentation
 See the `docs/Teste .NET` folder for business rules, API contracts, and further requirements.

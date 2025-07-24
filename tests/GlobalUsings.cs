@@ -1,0 +1,12 @@
+global using Xunit;
+global using Xunit.Abstractions;
+global using FluentAssertions;
+global using NSubstitute;
+global using Bogus;
+global using MediatR;
+global using AutoMapper;
+global using SalesService.Domain.Entities;
+global using SalesService.Application.Commands;
+global using SalesService.Application.Queries;
+global using SalesService.Application.DTOs;
+global using SalesService.Application.Interfaces; 
