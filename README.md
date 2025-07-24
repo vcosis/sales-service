@@ -4,7 +4,173 @@
 
 SalesService is a modular .NET 8 solution designed with Project Layer Separation, following Clean Architecture principles. The project is structured to ensure clear separation of concerns, maintainability, and scalability.
 
-## Quick Start with Docker
+## Quick Start (Manual Setup)
+
+### Prerequisites
+- .NET 8.0 SDK
+- PostgreSQL 15+ (or Docker for database only)
+
+### Database Setup
+
+#### Option 1: Using Docker for PostgreSQL only
+```bash
+# Start PostgreSQL container
+docker run -d \
+  --name sales-postgres \
+  -e POSTGRES_DB=salesdb \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=S@le5#01! \
+  -p 5432:5432 \
+  postgres:15-alpine
+
+# Wait for database to be ready (check logs)
+docker logs sales-postgres
+```
+
+#### Option 2: Local PostgreSQL Installation
+1. Install PostgreSQL 15+ on your system
+2. Create database: `salesdb`
+3. Create user: `postgres` with password: `S@le5#01!`
+4. Ensure PostgreSQL is running on port 5432
+
+### Connection String Configuration
+
+The application uses the following connection string:
+```
+Host=localhost;Database=salesdb;Username=postgres;Password=S@le5#01!
+```
+
+This is configured in `src/SalesService.Api/appsettings.json` and can be overridden via environment variables.
+
+### Running the Application
+
+#### 1. Restore Dependencies
+```bash
+# Restore all packages
+dotnet restore
+
+# Or restore specific project
+dotnet restore src/SalesService.Api/SalesService.Api.csproj
+```
+
+#### 2. Build the Solution
+```bash
+# Build all projects
+dotnet build
+
+# Build specific project
+dotnet build src/SalesService.Api/SalesService.Api.csproj
+```
+
+#### 3. Run Database Migrations
+```bash
+# Apply migrations to create database schema
+dotnet ef database update --project src/SalesService.Infrastructure --startup-project src/SalesService.Api
+```
+
+#### 4. Start the API
+```bash
+# Run the API project
+dotnet run --project src/SalesService.Api
+
+# Or navigate to the API directory and run
+cd src/SalesService.Api
+dotnet run
+```
+
+#### 5. Verify Application is Running
+- **API**: http://localhost:5000
+- **Swagger UI:** http://localhost:5000/swagger
+
+### Application Startup Process
+
+When you run the application, you should see the following logs:
+
+```
+🔄 Running database migrations...
+✅ Migrations completed successfully!
+✅ Database seeded successfully!
+🚀 Sales Service API started successfully!
+🌐 Swagger UI available at: http://localhost:5000/swagger
+```
+
+### Testing the API
+
+Once the application is running, you can test it using:
+
+#### 1. Swagger UI
+- Open http://localhost:5000/swagger in your browser
+- Explore available endpoints
+- Test API calls directly from the interface
+
+#### 2. Using curl
+```bash
+# Get all sales
+curl -X GET "http://localhost:5000/api/sales" -H "accept: application/json"
+
+# Get sales with pagination
+curl -X GET "http://localhost:5000/api/sales?page=1&size=5" -H "accept: application/json"
+
+# Get sales filtered by cancelled status
+curl -X GET "http://localhost:5000/api/sales?filter=cancelled=true" -H "accept: application/json"
+
+# Get specific sale by ID
+curl -X GET "http://localhost:5000/api/sales/1" -H "accept: application/json"
+```
+
+#### 3. Using Postman or similar tools
+- Import the Swagger JSON from http://localhost:5000/swagger/v1/swagger.json
+- Test all endpoints with proper request/response validation
+
+### Troubleshooting
+
+#### Database Connection Issues
+- Ensure PostgreSQL is running and accessible
+- Verify connection string in `appsettings.json`
+- Check if port 5432 is not blocked by firewall
+
+#### Build Errors
+- Ensure .NET 8.0 SDK is installed: `dotnet --version`
+- Clear NuGet cache: `dotnet nuget locals all --clear`
+- Delete `bin/` and `obj/` folders and rebuild
+
+#### Migration Issues
+- Ensure database exists and user has proper permissions
+- Check if migrations are up to date: `dotnet ef migrations list`
+
+#### API Not Responding
+- Check if the application is running on the correct port
+- Verify no other application is using port 5000
+- Check application logs for startup errors
+
+### Stopping the Application
+
+#### Stop the API
+- Press `Ctrl+C` in the terminal where the API is running
+- Or kill the process: `dotnet run` will show the process ID
+
+#### Stop PostgreSQL (if using Docker)
+```bash
+# Stop the container
+docker stop sales-postgres
+
+# Remove the container (data will be lost)
+docker rm sales-postgres
+
+# Or keep the container for next time
+docker start sales-postgres
+```
+
+#### Clean Up (Optional)
+```bash
+# Remove all build artifacts
+dotnet clean
+
+# Remove database (if using Docker)
+docker volume rm $(docker volume ls -q | grep postgres)
+```
+
+## Quick Start with Docker (Alternative)
 
 ### Prerequisites
 - Docker Desktop installed and running
@@ -22,9 +188,8 @@ docker-compose logs -f
 ```
 
 ### Access the application
-- **API:** http://localhost:5000
 - **Swagger UI:** http://localhost:5000/swagger
-- **Database:** localhost:5432 (postgres/S@le5#01!)
+
 
 ### Stop the application
 ```bash

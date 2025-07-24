@@ -78,6 +78,9 @@ public class Sale
     /// <exception cref="InvalidOperationException">Thrown when quantity exceeds 20</exception>
     public void AddItem(int productId, string productName, int quantity, decimal unitPrice)
     {
+        if (Cancelled)
+            throw new InvalidOperationException("Não é possível adicionar itens a uma venda cancelada.");
+
         if (quantity < 1)
             throw new ArgumentException("A quantidade deve ser pelo menos 1 unidade.");
 
@@ -157,6 +160,9 @@ public class Sale
     /// </summary>
     public void UpdateItem(int itemId, int productId, string productName, int quantity, decimal unitPrice)
     {
+        if (Cancelled)
+            throw new InvalidOperationException("Não é possível atualizar itens em uma venda cancelada.");
+
         var item = Items.FirstOrDefault(i => i.Id == itemId);
         if (item == null)
             throw new KeyNotFoundException($"Item with id {itemId} not found in sale.");
@@ -179,6 +185,9 @@ public class Sale
     /// </summary>
     public void RemoveItem(int itemId)
     {
+        if (Cancelled)
+            throw new InvalidOperationException("Não é possível remover itens de uma venda cancelada.");
+
         var item = Items.FirstOrDefault(i => i.Id == itemId);
         if (item != null)
         {

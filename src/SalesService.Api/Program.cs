@@ -53,6 +53,10 @@ try
     // Ensure database is created and migrations are applied
     context.Database.Migrate();
     Console.WriteLine("✅ Migrations completed successfully!");
+    
+    // Seed database with sample data
+    await DbInitializer.SeedAsync(context);
+    Console.WriteLine("✅ Database seeded successfully!");
 }
 catch (Exception ex)
 {

@@ -4,6 +4,7 @@ WORKDIR /app
 # Copy solution and project files first (for better cache)
 COPY *.sln ./
 COPY src/ ./src/
+COPY tests/ ./tests/
 
 # Restore dependencies (this layer will be cached if project files don't change)
 RUN dotnet restore
