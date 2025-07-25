@@ -172,6 +172,9 @@ docker volume rm $(docker volume ls -q | grep postgres)
 
 ## Quick Start with Docker (Alternative)
 
+There is an issue running via Docker.
+In the meantime, consider running via Manual Setup.
+
 ### Prerequisites
 - Docker Desktop installed and running
 
